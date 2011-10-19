@@ -10,7 +10,6 @@
 		14B55F23144E158C00B21EB1 /* BVPlistExtractor.m in Sources */ = {isa = PBXBuildFile; fileRef = 14B55F22144E158C00B21EB1 /* BVPlistExtractor.m */; };
 		14DB0025144E13AA000E6175 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14DB0024144E13AA000E6175 /* Foundation.framework */; };
 		14DB0028144E13AA000E6175 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 14DB0027144E13AA000E6175 /* main.m */; };
-		14DB002C144E13AA000E6175 /* BVPlistExtractor.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 14DB002B144E13AA000E6175 /* BVPlistExtractor.1 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -20,7 +19,6 @@
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
-				14DB002C144E13AA000E6175 /* BVPlistExtractor.1 in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
@@ -33,7 +31,6 @@
 		14DB0024144E13AA000E6175 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		14DB0027144E13AA000E6175 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		14DB002A144E13AA000E6175 /* BVPlistExtractor-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BVPlistExtractor-Prefix.pch"; sourceTree = "<group>"; };
-		14DB002B144E13AA000E6175 /* BVPlistExtractor.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = BVPlistExtractor.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,7 +76,6 @@
 				14B55F21144E158C00B21EB1 /* BVPlistExtractor.h */,
 				14B55F22144E158C00B21EB1 /* BVPlistExtractor.m */,
 				14DB0027144E13AA000E6175 /* main.m */,
-				14DB002B144E13AA000E6175 /* BVPlistExtractor.1 */,
 				14DB0029144E13AA000E6175 /* Supporting Files */,
 			);
 			path = BVPlistExtractor;
