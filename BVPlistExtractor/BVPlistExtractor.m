@@ -35,13 +35,26 @@
 
 #include "BVPlistExtractor.h"
 
-static id _BVExtractPlistAtAddr(char *start_addr, char *addr, NSError **error);
-static id _BVExtractPlistAtAddr32(char *start_addr, char *addr, NSError **error);
-static id _BVExtractPlistAtAddr64(char *start_addr, char *addr, NSError **error);
-static id _BVPlist(char *addr, unsigned long size, NSError **error);
+static NSData *_BVMachOSection(NSURL *url, char *segname, char *sectname, NSError **error);
+static NSData *_BVMachOSectionFromMachOHeader(char *addr, char *segname, char *sectname, NSError **error);
+static NSData *_BVMachOSectionFromMachOHeader32(char *addr, char *segname, char *sectname, NSError **error);
+static NSData *_BVMachOSectionFromMachOHeader64(char *addr, char *segname, char *sectname, NSError **error);
 
 id BVExtractPlist(NSURL *url, NSError **error) {
     id plist = nil;
+    NSData *data = _BVMachOSection(url, "__TEXT", "__info_plist", error);
+    if (data) {
+        plist = [NSPropertyListSerialization propertyListWithData:data
+                                                          options:NSPropertyListImmutable
+                                                           format:NULL
+                                                            error:error];
+
+    }
+    return plist;
+}
+
+NSData *_BVMachOSection(NSURL *url, char *segname, char *sectname, NSError **error) {
+    NSData *data = nil;
     int fd;
     struct stat stat_buf;
     size_t size;
@@ -62,6 +75,8 @@ id BVExtractPlist(NSURL *url, NSError **error) {
     // Check if it's a fat file
     struct fat_header *fh = (struct fat_header *)addr;
     uint32_t magic = NSSwapBigIntToHost(FAT_MAGIC);
+    
+    // It's a fat file
     if (fh->magic == magic) {
         int nfat_arch = NSSwapBigIntToHost(fh->nfat_arch);
         addr += sizeof(struct fat_header);
@@ -71,12 +86,14 @@ id BVExtractPlist(NSURL *url, NSError **error) {
             struct fat_arch *fa = (struct fat_arch *)addr;
             int offset = NSSwapBigIntToHost(fa->offset);
             addr += sizeof(struct fat_arch);
-            plist = _BVExtractPlistAtAddr(start_addr + offset, start_addr + offset, error);
-            if (plist) break;
+            data = _BVMachOSectionFromMachOHeader(start_addr + offset, segname, sectname, error);
+            if (data) break;
         }
     }
-    else plist = _BVExtractPlistAtAddr(start_addr, start_addr, error);
-    
+    // It's a thin file
+    else {
+        data = _BVMachOSectionFromMachOHeader(start_addr, segname, sectname, error);
+    }
     
 END_MMAP:
     munmap(addr, size);
@@ -85,28 +102,29 @@ END_FILE:
     close(fd);
     
 END_FUNCTION:
-    return plist;
+    return data;
 }
 
-id _BVExtractPlistAtAddr(char *start_addr, char *addr, NSError **error) {
-    id plist = nil;
+NSData *_BVMachOSectionFromMachOHeader(char *addr, char *segname, char *sectname, NSError **error) {
+    NSData *data = nil;
     struct mach_header *mh;
 
     // The first bytes are the Mach-O header
     mh = (struct mach_header *)addr;
     
     if (mh->magic == MH_MAGIC) { // 32-bit
-        plist = _BVExtractPlistAtAddr32(start_addr, addr, error);
+        data = _BVMachOSectionFromMachOHeader32(addr, segname, sectname, error);
     }
     else if (mh->magic == MH_MAGIC_64) { // 64-bit
-        plist = _BVExtractPlistAtAddr64(start_addr, addr, error);
+        data = _BVMachOSectionFromMachOHeader64(addr, segname, sectname, error);
     }
     
-    return plist;
+    return data;
 }
 
-static id _BVExtractPlistAtAddr32(char *start_addr, char *addr, NSError **error) {
-    id plist = nil;
+NSData *_BVMachOSectionFromMachOHeader32(char *addr, char *segname, char *sectname, NSError **error) {
+    NSData *data = nil;
+    char *base_macho_header_addr = addr;
     struct mach_header *mh = NULL;
     struct load_command *lc = NULL;
     struct segment_command *sc = NULL;
@@ -118,17 +136,17 @@ static id _BVExtractPlistAtAddr32(char *start_addr, char *addr, NSError **error)
     for (int icmd = 0; icmd < mh->ncmds; icmd++) {
         lc = (struct load_command *)addr;
         
+        if (lc->cmdsize == 0) continue;
+        
         if (lc->cmd != LC_SEGMENT) {
             addr += lc->cmdsize;
             continue;
         }
         
-        if (lc->cmdsize == 0) continue;
-        
         // It's a 32-bit segment
         sc = (struct segment_command *)addr;
         
-        if (strcmp("__TEXT", sc->segname) != 0 || sc->nsects == 0) {
+        if (strcmp(segname, sc->segname) != 0 || sc->nsects == 0) {
             addr += lc->cmdsize;
             continue;
         }
@@ -140,20 +158,22 @@ static id _BVExtractPlistAtAddr32(char *start_addr, char *addr, NSError **error)
             sect = (struct section *)addr;
             addr += sizeof(struct section);
             
-            if (strcmp("__info_plist", sect->sectname) != 0) continue;
+            if (strcmp(sectname, sect->sectname) != 0) continue;
             
             // It's the __TEXT __info_plist section
-            plist = _BVPlist(start_addr + sect->offset, sect->size, error);
+            
+            data = [NSData dataWithBytes:(base_macho_header_addr + sect->offset) length:sect->size];
             goto END_FUNCTION;
         }
     }
     
 END_FUNCTION:
-    return plist;
+    return data;
 }
 
-static id _BVExtractPlistAtAddr64(char *start_addr, char *addr, NSError **error) {
-    id plist = nil;
+NSData *_BVMachOSectionFromMachOHeader64(char *addr, char *segname, char *sectname, NSError **error) {
+    NSData *data = nil;
+    char *base_macho_header_addr = addr;
     struct mach_header_64 *mh = NULL;
     struct load_command *lc = NULL;
     struct segment_command_64 *sc = NULL;
@@ -175,7 +195,7 @@ static id _BVExtractPlistAtAddr64(char *start_addr, char *addr, NSError **error)
         // It's a 64-bit segment
         sc = (struct segment_command_64 *)addr;
         
-        if (strcmp("__TEXT", sc->segname) != 0 || sc->nsects == 0) {
+        if (strcmp(segname, sc->segname) != 0 || sc->nsects == 0) {
             addr += lc->cmdsize;
             continue;
         }
@@ -187,22 +207,14 @@ static id _BVExtractPlistAtAddr64(char *start_addr, char *addr, NSError **error)
             sect = (struct section_64 *)addr;
             addr += sizeof(struct section_64);
             
-            if (strcmp("__info_plist", sect->sectname) != 0) continue;
+            if (strcmp(sectname, sect->sectname) != 0) continue;
             
             // It's the __TEXT __info_plist section
-            plist = _BVPlist(start_addr + sect->offset, sect->size, error);
+            data = [NSData dataWithBytes:(base_macho_header_addr + sect->offset) length:sect->size];
             goto END_FUNCTION;
         }
     }
     
 END_FUNCTION:
-    return plist;
-}
-
-id _BVPlist(char *addr, unsigned long size, NSError **error) {
-    NSData *data = [NSData dataWithBytes:addr length:size];
-    return [NSPropertyListSerialization propertyListWithData:data
-                                                     options:NSPropertyListImmutable
-                                                      format:NULL
-                                                       error:error];
+    return data;
 }
