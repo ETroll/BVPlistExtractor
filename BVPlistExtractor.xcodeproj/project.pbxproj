@@ -35,7 +35,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		140A1F601454F4E20088FCA0 /* Makefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		140A1F601454F4E20088FCA0 /* Makefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; usesTabs = 1; };
 		1466DC2F1453ED7C00106C55 /* _BVMachOSectionFromMachOHeader.m4 */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; path = _BVMachOSectionFromMachOHeader.m4; sourceTree = "<group>"; };
 		14B55F21144E158C00B21EB1 /* BVPlistExtractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BVPlistExtractor.h; sourceTree = "<group>"; };
 		14B55F22144E158C00B21EB1 /* BVPlistExtractor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BVPlistExtractor.m; sourceTree = "<group>"; };
