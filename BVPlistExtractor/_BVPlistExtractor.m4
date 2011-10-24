@@ -36,9 +36,9 @@
 #include "BVPlistExtractor.h"
 
 static NSData *_BVMachOSection(NSURL *url, char *segname, char *sectname, NSError **error);
-static NSData *_BVMachOSectionFromMachOHeader(char *addr, char *segname, char *sectname, NSError **error);
-static NSData *_BVMachOSectionFromMachOHeader32(char *addr, char *segname, char *sectname, NSError **error);
-static NSData *_BVMachOSectionFromMachOHeader64(char *addr, char *segname, char *sectname, NSError **error);
+static NSData *_BVMachOSectionFromMachOHeader(char *addr, long bytes_left, char *segname, char *sectname, NSError **error);
+static NSData *_BVMachOSectionFromMachOHeader32(char *addr, long bytes_left, char *segname, char *sectname, NSError **error);
+static NSData *_BVMachOSectionFromMachOHeader64(char *addr, long bytes_left, char *segname, char *sectname, NSError **error);
 
 id BVExtractPlist(NSURL *url, NSError **error) {
     id plist = nil;
@@ -57,7 +57,7 @@ NSData *_BVMachOSection(NSURL *url, char *segname, char *sectname, NSError **err
     NSData *data = nil;
     int fd;
     struct stat stat_buf;
-    size_t size;
+    long size, bytes_left;
     
     char *addr = NULL;
     char *start_addr = NULL;
@@ -67,32 +67,43 @@ NSData *_BVMachOSection(NSURL *url, char *segname, char *sectname, NSError **err
     if (fd == -1) goto END_FUNCTION;
     if (fstat(fd, &stat_buf) == -1) goto END_FILE;
     size = stat_buf.st_size;
+    if (size == 0) goto END_FILE;
+    bytes_left = size;
     
     // Map the file to memory
     addr = start_addr = mmap(0, size, PROT_READ, MAP_FILE | MAP_PRIVATE, fd, 0);
     if (addr == MAP_FAILED) goto END_FILE;
     
     // Check if it's a fat file
+    //   Make sure the file is long enough to hold a fat_header
+    if (size < sizeof(struct fat_header)) goto END_MMAP;
     struct fat_header *fh = (struct fat_header *)addr;
     uint32_t magic = NSSwapBigIntToHost(FAT_MAGIC);
     
     // It's a fat file
     if (fh->magic == magic) {
         int nfat_arch = NSSwapBigIntToHost(fh->nfat_arch);
+        
+        bytes_left -= sizeof(struct fat_header);
         addr += sizeof(struct fat_header);
+
+        if (bytes_left < (nfat_arch * sizeof(struct fat_arch))) goto END_MMAP;
         
         // Read the architectures
         for (int ifat_arch = 0; ifat_arch < nfat_arch; ifat_arch++) {
             struct fat_arch *fa = (struct fat_arch *)addr;
             int offset = NSSwapBigIntToHost(fa->offset);
             addr += sizeof(struct fat_arch);
-            data = _BVMachOSectionFromMachOHeader(start_addr + offset, segname, sectname, error);
+            
+            if (bytes_left < offset) goto END_MMAP;
+            
+            data = _BVMachOSectionFromMachOHeader(start_addr + offset, bytes_left, segname, sectname, error);
             if (data) break;
         }
     }
     // It's a thin file
     else {
-        data = _BVMachOSectionFromMachOHeader(start_addr, segname, sectname, error);
+        data = _BVMachOSectionFromMachOHeader(start_addr, bytes_left,segname, sectname, error);
     }
     
 END_MMAP:
@@ -105,18 +116,20 @@ END_FUNCTION:
     return data;
 }
 
-NSData *_BVMachOSectionFromMachOHeader(char *addr, char *segname, char *sectname, NSError **error) {
+NSData *_BVMachOSectionFromMachOHeader(char *addr, long bytes_left, char *segname, char *sectname, NSError **error) {
     NSData *data = nil;
     struct mach_header *mh;
 
+    if (bytes_left < sizeof(struct mach_header)) return nil;
+    
     // The first bytes are the Mach-O header
     mh = (struct mach_header *)addr;
     
     if (mh->magic == MH_MAGIC) { // 32-bit
-        data = _BVMachOSectionFromMachOHeader32(addr, segname, sectname, error);
+        data = _BVMachOSectionFromMachOHeader32(addr, bytes_left, segname, sectname, error);
     }
     else if (mh->magic == MH_MAGIC_64) { // 64-bit
-        data = _BVMachOSectionFromMachOHeader64(addr, segname, sectname, error);
+        data = _BVMachOSectionFromMachOHeader64(addr, bytes_left, segname, sectname, error);
     }
     
     return data;
