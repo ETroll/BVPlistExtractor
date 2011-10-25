@@ -1,4 +1,4 @@
-NSData *BV_FUNCTION_NAME`'(char *addr, long bytes_left, char *segname, char *sectname, NSError **error) {
+NSData *BV_FUNCTION_NAME`'(char *addr, long bytes_left, char *segname, char *sectname, NSURL *url, NSError **error) {
     NSData *data = nil;
     char *base_macho_header_addr = addr;
     struct `mach_header'BV_STRUCT_SUFFIX *mh = NULL;
@@ -8,20 +8,29 @@ NSData *BV_FUNCTION_NAME`'(char *addr, long bytes_left, char *segname, char *sec
 
     long bytes_left_from_macho_header = bytes_left;
 
-    if (bytes_left < sizeof(struct `mach_header'BV_STRUCT_SUFFIX)) return nil;
+    if (bytes_left < sizeof(struct `mach_header'BV_STRUCT_SUFFIX)) {
+        if (error) *error = _BVCorruptMachOError(url);
+        goto END_FUNCTION;
+    }
     
     mh = (struct `mach_header'BV_STRUCT_SUFFIX *)addr;
     addr += sizeof(struct `mach_header'BV_STRUCT_SUFFIX);
     bytes_left -= sizeof(struct `mach_header'BV_STRUCT_SUFFIX);
     
     for (int icmd = 0; icmd < mh->ncmds; icmd++) {
-        if (bytes_left < 0) goto END_FUNCTION;
+        if (bytes_left < 0) {
+            if (error) *error = _BVCorruptMachOError(url);
+            goto END_FUNCTION;
+        }
         
         lc = (struct load_command *)addr;
         
         if (lc->cmdsize == 0) continue;
         bytes_left -= lc->cmdsize;
-        if (bytes_left < 0) goto END_FUNCTION;
+        if (bytes_left < 0)  {
+            if (error) *error = _BVCorruptMachOError(url);
+            goto END_FUNCTION;
+        }
         
         if (lc->cmd != LC_SEGMENT) {
             addr += lc->cmdsize;
@@ -50,7 +59,10 @@ NSData *BV_FUNCTION_NAME`'(char *addr, long bytes_left, char *segname, char *sec
             if (strcmp(sectname, sect->sectname) != 0) continue;
             
             // It's the section we want
-            if (bytes_left_from_macho_header < (sect->offset + sect->size)) goto END_FUNCTION;
+            if (bytes_left_from_macho_header < (sect->offset + sect->size)) {
+                if (error) *error = _BVCorruptMachOError(url);
+                goto END_FUNCTION;
+            }
             data = [NSData dataWithBytes:(base_macho_header_addr + sect->offset) length:sect->size];
             goto END_FUNCTION;
         }
