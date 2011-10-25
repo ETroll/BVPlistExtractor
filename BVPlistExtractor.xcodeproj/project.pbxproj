@@ -22,18 +22,6 @@
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		14DB001E144E13AA000E6175 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
 		140A1F601454F4E20088FCA0 /* Makefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; usesTabs = 1; };
 		1466DC2F1453ED7C00106C55 /* _BVMachOSectionFromMachOHeader.m4 */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; path = _BVMachOSectionFromMachOHeader.m4; sourceTree = "<group>"; };
@@ -131,7 +119,6 @@
 			buildPhases = (
 				14DB001C144E13AA000E6175 /* Sources */,
 				14DB001D144E13AA000E6175 /* Frameworks */,
-				14DB001E144E13AA000E6175 /* CopyFiles */,
 			);
 			buildRules = (
 			);
