@@ -12,6 +12,16 @@
 		14DB0028144E13AA000E6175 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 14DB0027144E13AA000E6175 /* main.m */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		140A1F611454F5750088FCA0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 14DB0017144E13AA000E6175 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 14E8D5B91454F00C00EBAFFC;
+			remoteInfo = BVPlistExtractorSource;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		14DB001E144E13AA000E6175 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -25,12 +35,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		140A1F601454F4E20088FCA0 /* Makefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		1466DC2F1453ED7C00106C55 /* _BVMachOSectionFromMachOHeader.m4 */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; path = _BVMachOSectionFromMachOHeader.m4; sourceTree = "<group>"; };
 		14B55F21144E158C00B21EB1 /* BVPlistExtractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BVPlistExtractor.h; sourceTree = "<group>"; };
 		14B55F22144E158C00B21EB1 /* BVPlistExtractor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BVPlistExtractor.m; sourceTree = "<group>"; };
 		14DB0020144E13AA000E6175 /* BVPlistExtractor */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BVPlistExtractor; sourceTree = BUILT_PRODUCTS_DIR; };
 		14DB0024144E13AA000E6175 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		14DB0027144E13AA000E6175 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		14DB002A144E13AA000E6175 /* BVPlistExtractor-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BVPlistExtractor-Prefix.pch"; sourceTree = "<group>"; };
+		14E8D5B71454EC5600EBAFFC /* _BVPlistExtractor.m4 */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; path = _BVPlistExtractor.m4; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +89,9 @@
 				14B55F21144E158C00B21EB1 /* BVPlistExtractor.h */,
 				14B55F22144E158C00B21EB1 /* BVPlistExtractor.m */,
 				14DB0027144E13AA000E6175 /* main.m */,
+				14E8D5B71454EC5600EBAFFC /* _BVPlistExtractor.m4 */,
+				1466DC2F1453ED7C00106C55 /* _BVMachOSectionFromMachOHeader.m4 */,
+				140A1F601454F4E20088FCA0 /* Makefile */,
 				14DB0029144E13AA000E6175 /* Supporting Files */,
 			);
 			path = BVPlistExtractor;
@@ -91,6 +107,23 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXLegacyTarget section */
+		14E8D5B91454F00C00EBAFFC /* BVPlistExtractorSource */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "";
+			buildConfigurationList = 14E8D5BA1454F00C00EBAFFC /* Build configuration list for PBXLegacyTarget "BVPlistExtractorSource" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = BVPlistExtractor;
+			dependencies = (
+			);
+			name = BVPlistExtractorSource;
+			passBuildSettingsInEnvironment = 0;
+			productName = BVPlistExtractorSource;
+		};
+/* End PBXLegacyTarget section */
+
 /* Begin PBXNativeTarget section */
 		14DB001F144E13AA000E6175 /* BVPlistExtractor */ = {
 			isa = PBXNativeTarget;
@@ -103,6 +136,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				140A1F621454F5750088FCA0 /* PBXTargetDependency */,
 			);
 			name = BVPlistExtractor;
 			productName = BVPlistExtractor;
@@ -130,6 +164,7 @@
 			projectRoot = "";
 			targets = (
 				14DB001F144E13AA000E6175 /* BVPlistExtractor */,
+				14E8D5B91454F00C00EBAFFC /* BVPlistExtractorSource */,
 			);
 		};
 /* End PBXProject section */
@@ -145,6 +180,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		140A1F621454F5750088FCA0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 14E8D5B91454F00C00EBAFFC /* BVPlistExtractorSource */;
+			targetProxy = 140A1F611454F5750088FCA0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		14DB002D144E13AA000E6175 /* Debug */ = {
@@ -212,6 +255,27 @@
 			};
 			name = Release;
 		};
+		14E8D5BB1454F00C00EBAFFC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		14E8D5BC1454F00C00EBAFFC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -229,6 +293,15 @@
 			buildConfigurations = (
 				14DB0030144E13AA000E6175 /* Debug */,
 				14DB0031144E13AA000E6175 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		14E8D5BA1454F00C00EBAFFC /* Build configuration list for PBXLegacyTarget "BVPlistExtractorSource" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				14E8D5BB1454F00C00EBAFFC /* Debug */,
+				14E8D5BC1454F00C00EBAFFC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
