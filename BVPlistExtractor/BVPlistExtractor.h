@@ -23,6 +23,21 @@
 
 #import <Foundation/Foundation.h>
 
+#ifndef __has_feature
+#define __has_feature(x) 0  // Compatibility with non-clang compilers
+#endif
+#ifndef __has_extension
+#define __has_extension __has_feature // Compatibility with pre-3.0 compilers
+#endif
+
+#if __has_feature(objc_arc)
+#define BVAUTORELEASE(obj) obj
+#define BVAUTORELEASING __autoreleasing
+#else
+#define BVAUTORELEASE(obj) [obj autorelease]
+#define BVAUTORELEASING
+#endif
+
 // BVExtractPlist()
 //
 // Extracts a plist that has been embedded in the  __TEXT __info_plist section
@@ -36,7 +51,6 @@
 // 
 //     error: if different from NULL and the return value is nil, an error object
 //     describing the reason why the plist couldn't be extracted.
-//     *** Currently this parameter is not used
 //
 // RETURN VALUE:
 //
@@ -52,4 +66,10 @@
 //     . Fat/universal containing at least one of
 //       Mach-O i386, Mach-O x86_64
 
-id BVExtractPlist(NSURL *url, NSError **error);
+id BVExtractPlist(NSURL *url, NSError * BVAUTORELEASING *error);
+
+// Constants for error reporting
+extern NSString * const BVPlistExtractorErrorDomain;
+extern const NSInteger BVPlistExtractorErrorOpenFile;
+extern const NSInteger BVPlistExtractorErrorEmptyFile;
+extern const NSInteger BVPlistExtractorErrorCorruptMachO;
